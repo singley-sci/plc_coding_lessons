@@ -32,4 +32,4 @@ The following table summarizes the activities created by PLC members. The materi
 
 ## Contact and Contributions 
 
-These resources were originally created through a professional learning community for faculty at Roger Williams University during the 2024–2025 academic year. For more information or questions, please contact the PI of the PLC, Joel Singley (jsingley@rwu.edu). The PLC was made possible with funding from Academic Affairs at RWU and a Curriculum and Professional Development subaward from the Rhode Island Space Grant and Brown University.  
+These resources were originally created through a professional learning community for faculty at Roger Williams University during the 2024–2025 academic year. For more information or questions, please contact the PI of the PLC, Joel Singley (jsingley@rwu.edu). This work was supported by funding from Academic Affairs at RWU and subaward #00002565 from the NASA Rhode Island Space Grant Program administered by Brown University. Any opinions, findings, and conclusions or recommendations expressed are solely those of the authors.
