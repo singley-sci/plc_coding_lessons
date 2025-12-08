@@ -1,0 +1,243 @@
+---
+title: "Occupational Health Epidemiology Analysis Project 1: Oil Spill Cleanup"
+author: "Write your name here"
+format: html
+editor: visual
+---
+
+## Overview
+
+In this assignment, you will use chunks of code to do an epidemiologic analysis. You've already practiced doing all of the skills needed for this exercise and all of the relevant code for each skill.
+
+The **objectives** of this activity are for you to...
+
+-   Explore and get to know an occupational health data set.
+
+    -   Understand what the variable names mean
+
+    -   Identify which variables are categorical vs continuous
+
+    -   Consider which variables are the most interesting in terms of exposures, outcomes, and confounders.
+
+-   Visualize and interpret data to answer questions about the exposures and health outcomes of the workers cleaning up the oil spill.
+
+-   Compare exposures and outcomes between different groups.
+
+-   Provide recommendations for how to prioritize support for the workers cleaning up the spill.
+
+-   Pose key follow-up questions based on the findings and identify what other types of information would be useful for supporting workers cleaning up the spill.
+
+By completing this activity you should be able to...
+
+-   Adapt (and troubleshoot) R code to generate and format plots
+-   Produce regression analyses to address specific questions
+
+***Note:** This activity will likely challenge you. You might face challenges with multiple aspects, including the coding, interpreting the resulting plots, formulating your written answers, etc. We will all work together to get through these challenges. Everyone can learn to code!*
+
+## Tips for success
+
+1.  See the bits of code that you've already practices using in this course under **files** in the bottom right pane called: **sample_code.qmd**.
+
+2.  Click on **coding_cheat_sheet.docx** under **files** in the bottom right for a set of helpful links
+
+3.  In particular, consider checking out Hadley Wickham's R resources (https://r4ds.hadley.nz/eda) the bit on "exploratory data analysis"!
+
+\-\-\-\-\-\-\-\-\-\--
+
+## 1. Loading Packages & Data
+
+Here, we're going to install and then load three packages. The comments below tell you a bit about what each package does for us. Go ahead and run the code chunk.
+
+```{r}
+#| results: hide # this prevents a lot of messages from being printed as the code works
+
+# install required packages for this activity
+install.packages("tidyverse")       # a collection of packages to handle and plot data 
+install.packages("ggthemes")        # a package containing better looking plot themes
+
+# load the packages so we can use the tools
+library(tidyverse)
+library(ggthemes)
+```
+
+Now, load the data.
+
+```{r}
+# assign the occ health data to a variable called "data"
+path_data <- "data/occ_health_dat.csv"
+data <- read_csv(path_data)
+```
+
+## 2. Note what the variable names mean? 
+
+Here is a data dictionary that describes what the variables mean.
+
+You can create new variables if you like and add them to this dictionary.
+
+This dictionary serves as a reference that you can return to as you develop your analysis.
+
+-   **bmi**: normal continuous var
+
+-   **sex**: 1 = male; 2 = female
+
+-   **smoker**: 1 = never; 2 = ever; 3 = current
+
+-   **time_exposure_min**: time of exposure (in min) for each worker to the contaminated site that was sampled
+
+-   **benzene_conc_ppb**: benzene concentration in sample taken from site where worker had exposure
+
+-   **log_benz_conc_ppb**: log10 transformed version of benzene_conc_ppb \[simply did log_benz_conc_ppb **\<-** log10(benzene_conc_ppb)\]
+
+-   **toluene_conc_ppb**: toluene concentration in sample taken from site where worker had exposure
+
+-   **respiratory_sx**: 1 = had some type of respiratory adverse health effect symptom (e.g., cough, wheeze, shortness of breath); 0 = did not have
+
+-   **systemic_sx**: 1 = had some type of systemic adverse health effect symptom (e.g., headache, skin irritation); 0 = did not have
+
+## 3. Explore the data in depth to understand the variables better.
+
+**TASK: Explore the data using the non-visualization techniques that we trained on. Consider mean, median, range, categories/frequency tables, etc.**
+
+```{r}
+# write some lines of code in here to examine the data (the data is called "data")
+
+
+
+
+
+
+```
+
+**TASK: Make a few observations about the variables and describe it in a few short bullet points.**
+
+::: callout-note
+Type your answer in this box
+:::
+
+## 4. Visualize the data with histograms
+
+**TASK: Make histograms for the continuous variables**
+
+-   Do histogram for each continuous variable.
+-   Check out how the histograms vary for benzene_conc_ppb versus log_benz_conc_ppb.
+    -   Note how the log10 transformed variable makes the histogram look normally distributed (as opposed to log-normally distributed).
+
+```{r}
+# make HISTOGRAMS here
+
+
+
+
+
+
+
+
+
+```
+
+**QUESTION: What are the main takeaway(s) from these histograms? How do these plots change the way you think about the exposures faced by the workers cleaning up the oil spill?**
+
+::: callout-note
+Type your answer in this box
+:::
+
+## 5. Define question of interest
+
+**TASK: What are 2 main questions that you'd like to explore in this dataset?**
+
+::: callout-note
+Type your answer in this box
+:::
+
+## 6. Visualize the data with boxplots and scatterplots
+
+**TASK: Make boxplots and scatterplots to help investigate your 2 main questions that decided to explore.**
+
+-   Remember that for boxplots:
+    -   the x variable must have categories (e.g., respiratory_sx) \[categorical variable\]
+    -   the y variable must be continuous (e.g., log_benz_conc_ppb)
+-   Remember that for scatter plots
+    -   the x and y variables must be continuous
+
+```{r}
+# do one or more BOXPLOTS to examine some useful relationships between variables
+
+
+
+
+
+# do one or more SCATTERPLOTS to examine some useful relationships between variables
+
+
+
+
+
+
+```
+
+**QUESTION: What are the main takeaway(s) from each visualization? What patterns or trends did you observe?**
+
+::: callout-note
+Type your answer in this box
+:::
+
+**QUESTION: Did these plots prompt any new questions to arise about the variables related to the exposure and health outcomes of the oil spill cleanup workers?**
+
+::: callout-note
+Type your answer in this box
+:::
+
+## 7. Quantify relationships between variables
+
+TASK: Use regression techniques to address your 2 main questions (and any other questions that arise)
+
+-   Use logistic regression when your outcome is categorical
+
+-   Use linear regression when your outcome is continuous
+
+-   Consider controlling for covariables (potential confounders or effect modifiers)
+
+```{r}
+# do regression analyses in this block
+
+
+
+
+
+
+
+
+
+```
+
+**QUESTION: Interpret the output of each model, ensuring that there is enough information to show what this means for the oil spill cleanup workers.**
+
+::: callout-note
+Type your answer in this box
+:::
+
+## 8. Recommendations and questions for future work
+
+**QUESTION: What are your recommendations for helping protect spill cleanup workers? Is there a particular type of oil spill cleanup occupational group that should receive priority attention for exposure reduction work?**
+
+::: callout-note
+Type your answer in this box
+:::
+
+**QUESTION: What other data would be useful to get to support research to protect workers? What other comparison groups would be nice to have to contrast with the 3 oil spill cleaner occupations in this data?**
+
+::: callout-note
+Type your answer in this box
+:::
+
+**QUESTION: What else would you like to learn about about analytic methods to protect workers?**
+
+::: callout-note
+Type your answer in this box
+:::
+
+## 9. Render your report
+
+-   See what the output looks like for the HTML, pdf, and word options.
+
+-   With some tweaks you could actually write a full paper/ analysis using R.

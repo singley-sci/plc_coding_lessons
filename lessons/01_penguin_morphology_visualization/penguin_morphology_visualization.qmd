@@ -1,0 +1,266 @@
+---
+title: "Example Activity: Penguin Morphology"
+author: "Joel Singley"
+format: html
+editor: visual
+---
+
+## Overview
+
+In this activity, you will be running some code that I have provided code and writing a bit of your own code to explore a public dataset that contains information about penguins.
+
+The **overall objectives** of this activity are for you to...
+
+-   Visualize and interpret data to answer questions about organisms
+
+-   Compare inter- and intra-species variations in physical traits
+
+-   Pose and answer new questions based on available data
+
+Additionally, by completing this activity you should be able to...
+
+-   Adapt (and troubleshoot) R code to generate and format plots to answer specific questions
+
+***Note:** This activity will likely challenge you. You might face challenges with multiple aspects, including the coding, interpreting the resulting plots, formulating your written answers, etc. We will all work together to get through these challenges. Everyone can learn to code!*
+
+## 1. A Few Coding Fundamentals
+
+We are working in what is called a Quarto document—this is a file type that allows us to combine formatted text along with computer code to accomplish tasks.
+
+The blocks that appear below this text are called **code chunks**. They contain code written in the language R that tells the computer what to do. You can **run the code chunk** by clicking the play icon (triangle) that appears at the top right of the chunk. Go ahead, try it!
+
+```{r}
+print("Hello World!")
+```
+
+You should see that a box appeared below the code chunk with the outputs. In this case, we told the computer to print the string of characters that read "Hello World!".
+
+In R, **functions** are a tool that accept inputs (those are called "arguments") and then the function performs a series of pre-defined steps to generate an output. In R, functions look like a word or a phrase directly before a set of parentheses. In the above example we used `print()`, which is a function that prints whatever we provide as an argument.
+
+The chunk below shows another example of a function. Here we are using the `sum()` function to add together a series of values. We'll also use the `seq()` function to create a sequence. Go ahead and run that chunk.
+
+```{r}
+# add together the numbers 1, 1, 2, and 3
+sum(1, 1, 2, 3)
+
+# create a sequence of values from 2 to 10 by 2s
+seq(from = 2, to = 10, by = 2)
+```
+
+Notice that we get two different outputs. The first is from `sum()` and just provides the total of the input arguments, which is 7. The second function generates the desired sequence and has arguments that are named (i.e., "from", "to", and "by") that are assigned using the `=` sign.
+
+You likely also noticed their are lines that start with `#`, these are **comments**. In R, anything typed on a line after a `#` isn't run as a command. It is just there to help organize your code and explain what is happening. Comments are vital when trying to interpret code or when writing your own!
+
+**TASK:** Try to write you own line of code in the chunk below that will generate a sequence from 3 to 11. Hint you can copy and paste the code from the chunk above and then edit it in the chunk below.
+
+```{r}
+# create a sequence of values from 3 to 60 by 3s
+
+```
+
+If you get an error, try to interpret the message it provides, ask your neighbor for help, and, if you're unsure what is wrong, call your instructor over. Everyone makes many mistakes when the code, most of them are due to small typos, mismatched parentheses, etc. and can be fixed with just a few changes.
+
+Now, let's dive just a bit deeper to see how we can begin to use code to work with data.
+
+## 2. Loading Packages & Example Data
+
+When we're coding we often need certain functions to accomplish a task. In R, there are collections of functions that other people have already built, some of these functions are part of base R—that is, they are always available—and others are incorporated into specific packages. **Packages** are kind of like a toolbox, with each type of toolbox containing a set of tools (functions) that are suited for a certain type of work.
+
+Here, we're going to install and then load three packages. The comments below tell you a bit about what each package does for us. Go ahead and run the code chunk.
+
+```{r}
+#| results: hide # this prevents a lot of messages from being printed as the code works
+
+# install required packages for this activity
+install.packages("tidyverse")       # a collection of packages to handle and plot data 
+install.packages("palmerpenguins")  # a package containing pre-formatted data on penguins
+install.packages("ggthemes")        # a package containing better looking plot themes
+
+# load the packages so we can use the tools
+library(tidyverse)
+library(palmerpenguins)
+library(ggthemes)
+```
+
+Now, we can load and inspect the penguin data from the `palmerpenguin` package. Here we will use the assignment operator (`<-`) to
+
+```{r}
+#assign the penguins data from the package to an object called penguin_data
+penguin_data <- penguins
+
+# print the variable names and first 6 rows so we can inspect the dataset
+head(penguin_data)
+
+```
+
+We get two things from that code chunk. The first is a preview of the dataset which is printed right below the code chunk. Second, you should also now see something listed under the "Data" heading called `penguin_data` in your environment pane, which is to the top right of your screen. That information will tell you that the dataset has 344 observations of 8 variables. The preview generated by `head()` shows us that the variables are organized as **columns** with each **row** representing a penguin that was observed.
+
+Since it would be difficult to scroll through hundreds of rows of data to assess relationships between variables, let's make a plot!
+
+## 3. Making Your First Plot
+
+```{r}
+# make a scatter plot of flipper length by body mass
+penguin_data |>                     # start with the penguin data; the |> passes that along
+  ggplot(aes(x = body_mass_g,       # create a plot, use aesthetics to set x-axis variable
+             y = flipper_length_mm)) + # set the y-axis variable
+  geom_point()                      # display the data as points
+```
+
+You made a plot! While it may not be fully formatted yet, it only took a few lines of code to plot all of that data.
+
+1.  Identify the dataset you want to use and pass it along to the next step using the pipe (`|>`)
+
+2.  Say you want to make a plot using the `ggplot()` function
+
+3.  Put additional arguments inside ggplot(), specifically by defining the aesthetics (`aes()`) in which we identify which variables (columns) in the dataset will determine the x- and y-axes.
+
+4.  Match all the opening parentheses for both `ggplot()` and `aes()` then use a `+` at the end of the line to add the next visual element.
+
+5.  Typically, the next element is to define how the data will be displayed, using `geom_...()` where the `...` is replaced with a specific option. Here we `geom_point()` to use points, which makes a scatterplot!
+
+**TASK: Interpret the above plot by writing out an answer to the question "How are variations in penguin body mass related to variation in flipper length?"** \[Be sure to write your answer in complete sentences that refer to specific patterns in you notice in the plot.\]
+
+::: callout-note
+Type your answer in this box
+:::
+
+## 4. Generating & Interpreting a Few More Plots
+
+Often times we are interested in how patterns compare both within and among species. You may have noticed that `penguin_data` contains a variable called "species", which contains the names of the species (i.e., Gentoo, Chinstrap, or Adelie) for each observed penguin. Let's use the information in the species variable to enhance our plot.
+
+The code provided below is exactly the same as your first plot, except we've made three small changes. First, we inserted another argument inside of `aes()`. As a reminder, `aes()` defines the aesthetics of the plot, so by adding the part `color = species` we are saying that the color of of our data should be determined by the values contained in the species column. We also used `labs()` to change the labels for our x- and y-axes as well as the color legend. Notice that we added a `+` after `geom_point()` to indicate that we were adding another visual layer. Finally we added `theme_few()` to the very end, which makes the plot appear more professional. Notice that there is no plus sign at the very end of our code chunk.
+
+```{r}
+# make a scatter plot of flipper length by body mass with color determined by species
+penguin_data |>                    
+  ggplot(aes(x = body_mass_g,
+             y = flipper_length_mm,
+             color = species)) + # map color based on the value in species variable
+  geom_point() +
+  labs(x = "Body Mass (g)",       # label the x-axis
+       y = "Flipper Length (mm)", # label the y-axis
+       color = "Species") +       # label the color legend
+  theme_few()                     # adds a plot theme with better formatting
+```
+
+**Based on that plot, how does the relationship between body mass and flipper length compare within and among the species of penguins?** Be as specific as possible, highlighting both similarities and differences.
+
+::: callout-note
+Type your answer in this box
+:::
+
+**TASK:** Now, change your plot to show a *different variable* plotted against body mass. Be careful to type the variable name exactly as it appears in the dataset. You may want to scroll back up to Part 2 where we used `head()` to inspect the dataset.
+
+```{r}
+# make and label scatter plot with variables of your choosing
+penguin_data |>                    
+  ggplot(aes(x = body_mass_g,
+             y = ,              # write the variable name between the = and ,
+             color = species)) +
+  geom_point() +
+  labs(x = "Body Mass (g)",
+       y = "Flipper Length (mm)", # remember to update your y-axis label!
+       color = "Species") +
+  theme_few()
+```
+
+**Based on that plot, how does the relationship between body mass and your selected variable compare within and among the species of penguins?** Be as specific as possible, highlighting both similarities and differences.
+
+::: callout-note
+Type your answer in this box.
+:::
+
+In the above plots, we were examining relationships between two continuous variables, eventually we colored them by species, which was a discrete or categorical type variable. If we want to focus in more specifically on variations in a single continuous variable we can use a histogram to plot the distribution of values within that variable.
+
+Here, let's **create a histogram** of body mass and again color it by species. Examine then run the next code chunk.
+
+```{r}
+# create a histogram of penguin body masses colored by species
+penguin_data |>                    
+  ggplot(aes(x = body_mass_g,    # we are only define an x-axis variable, not a y
+             fill = species)) +  # we are setting a fill color by species
+  geom_histogram(alpha = 0.4,    # display a histogram, alpha changes transparency
+                 position = 'identity') +  # tells the code to not stack bars
+  labs(x = "Body Mass (g)",
+       y = "Count",
+       fill = "Species") +    # we changed this from color to fill
+  theme_few()
+```
+
+**Based on that plot, how does the distribution of body mass vary within and among the species of penguins?**
+
+::: callout-note
+Type your answer in this box
+:::
+
+**TASK:** Again examine which variables are included in the penguins dataset. Then generate a question that you have about morphological traits in penguins that you could use a plot to investigate.
+
+::: callout-note
+Type the question you want to answer here
+:::
+
+**TASK:** Now, use the existing code examples you have (or start from scratch) to generate a plot that will help you answer your question.
+
+```{r}
+# remember to write informative comments about your code
+
+```
+
+**TASK:** After generating and inspecting your plot (and fixing any issues!), write a detailed answer to your question based on a detailed interpretation of the data in the plot.
+
+::: callout-note
+Write your answer to your question here
+:::
+
+## 5. Additional Activities/Features?
+
+### Data Handling
+
+-   Importing from csv (also moving file to desired folder or finding its path elsewhere)
+
+-   Filtering (rows) and selecting (columns)
+
+-   Summarizing data (i.e., calculating means and measures of spread for all values in variable(s) and then by specific groups)
+
+-   Renaming variables
+
+-   Reformatting variables
+
+### Other Types of Plots and Plot Features
+
+Could include the following... (what is relevant for this kind of activity for you?)
+
+-   Improve plot theme/formatting (ugh ggplot default!)
+
+-   Add linear regression (or smoothed line) to scatter (also grouped vs ungrouped)
+
+-   Line plot
+
+-   Boxplot
+
+-   Density plot
+
+-   Bar charts
+
+-   Stacked line or bar charts
+
+### Changing or Creating Variables
+
+Possibilies include...
+
+-   unit conversion of a numeric variable (i.e., g to kg, ºF to ºC, etc.)
+
+-   creating a new variable by combining two variables
+
+-   conditional creation of a new variable based on values (including non-numeric) in another variable
+
+## 6. Needs for Instructor Resource
+
+What do you specifically want or need to make a resource more useful and likely to be used in your classes, groups, etc.?
+
+-   Template *and* example files? Or just the example?
+
+-   How to load different data types and sources (excel, csv, txt, etc.)
+
+-   How do students get to RStudio (posit.cloud)

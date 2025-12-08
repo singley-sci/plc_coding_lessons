@@ -1,0 +1,166 @@
+---
+title: "Exploring births data"
+author: "Jake"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+# Set global knit options (optional)
+knitr::opts_chunk$set(echo = FALSE)
+
+# load packages
+require(tidyverse)
+require(Epi)
+require(viridis)
+```
+
+```{r load births data, include = FALSE}
+# load data and functions
+data(births)
+```
+
+## Exploring the births data
+
+Data from 500 singleton births in a London Hospital.  
+Source: anonymous.  
+
+A data frame with 500 observations on the following 8 variables:
+
+- id:	Identity number for mother and baby.
+- bweight: Birth weight of baby.
+- lowbw: Indicator for birth weight less than 2500 g.
+- gestwks: Gestation period.
+- preterm: Indicator for gestation period less than 37 weeks.
+- matage: Maternal age.
+- hyp: Indicator for maternal hypertension. 1: hypertensive, 0: not hypertensive
+- sex: Sex of baby: 1:Male, 2:Female.
+
+```{r examine variable names, echo = TRUE}
+names(births) # gives the names of all of the variables
+```
+
+```{r numeric or categorical variables, echo = TRUE}
+str(births) # lists variables; tells where variable is considered "numeric", "character" or other, and first several data entries for each variable
+```
+
+```{r examine variables, echo = TRUE}
+str(births$preterm) # lists variables; tells where variable is considered "numeric" or "categorical"
+```
+
+```{r quick summary of variables, echo = TRUE}
+summary(births) # gives 6-number summary for numeric variables
+```
+
+
+## What if we want to explore more closely a single variable?
+
+We can use the `$` character to select a single variable from the dataset.
+Let's explore the output for some specific variables (one at a time)
+```{r summary of specific variables, echo = TRUE}
+summary(births$hyp) # gives 6-number summary for just the hyp variable.
+summary(births$matage) # gives 6-number summary for just the matage variable.
+# add a summary for another 1 or more variables of your choosing!
+summary(births$gestwks)
+```
+
+## Let's look at the number (count) of births categorized by different variables
+```{r frequency table, echo = TRUE}
+# Let's check out the number of births from a hypertensive pregnancy (use hyp variable), 
+stat.table(list(hyp), data = births)
+
+# choose a different couple of variables to summarize counts on and run the stat.table function on them below
+stat.table(list(preterm), data = births) #insert the new variable of interest into the list() function (inside the parentheses)
+stat.table(list(matage), data = births)
+stat.table(list(lowbw), data = births)
+stat.table(list(preterm), data = births)
+```
+To what extent does this type of table provide more helpful information when there are only a few categories (e.g., hyp) or when there are many categories (e.g., bweight) and why?
+
+**Response:**
+
+
+## Let's check the distribution of the continuous variables with histograms
+Histograms use ONE variable and plot it on the x-axis, with the frequency of a particular response plotted on the y-axis. For example, we can plot a histogram of births by maternal age to see the pattern for age at birth. 
+```{r histograms, echo = TRUE}
+hist(births$matage, col = "green") # maternal age histogram
+hist(births$matage, col = "green", breaks = 25) # change the number of breaks
+
+# print another 1 or more histograms below for different variables?
+hist(births$gestwks, col = "green", breaks = 20)
+
+```
+
+## What if want to look at the histogram of birthweight with and without hypertension during pregnancy?
+We can plot histograms, stratified by a particular variable such as hypertension, to examine relationships (differences, similarities) between the two variables.
+
+```{r stratifying histograms bweight & hyp, echo = TRUE} 
+
+# first getting the categorical variables to read as categorical variables (using as.character())
+births <- births |>
+  dplyr::mutate(hyp = as.character(hyp),
+                sex = as.character(sex),
+                lowbw = as.character(lowbw),
+                preterm = as.character(preterm))
+
+# now, creating the histogram
+ggplot(births, aes(x = bweight, fill = hyp)) +
+    geom_histogram(position = 'identity', alpha = 0.5, bins = 15) +
+    labs(fill = "hypertension")
+```
+
+Interpret this output. Would you say there is a relationship between birthweight and hypertension in this dataset and why?
+
+**Response:** 
+
+
+## Make another histogram (or several -- play!)
+Replace the x and your fill variables to explore a different relationship
+```{r stratifying histograms on your own, echo = TRUE} 
+
+ggplot(births, aes(x = matage, fill = preterm)) + # add a variable name for the x and fill variables
+    geom_histogram(position = 'identity', alpha = 0.5, bins = 15) +
+    labs(fill = "preterm") # add a variable name corresponding to the fill variable (this is the legend title)
+```
+
+
+Interpret this output. Would you say there is a relationship between the two variables you selected. 
+**Response:** 
+
+
+## It is standard care to give an HIV test during early pregnancy. Why?
+
+**Response:**
+
+
+## Check out the following HIV test screening data and answer the questions below.
+```{r hiv screening table, echo = TRUE}
+tibble(
+  new_test_1 = c("new_test1", "positive", "negative"),
+  gold_standard_positive = c("positive", 18, 8),
+  gold_standard_negative = c("negative", 2, 72)
+)
+
+tibble(
+  new_test_2 = c("new_test2", "positive", "negative"),
+  gold_standard_positive = c("positive", 185, 22),
+  gold_standard_negative = c("negative", 54, 222)
+)
+
+```
+
+
+Compute:
+
+1) Sensitivity
+test 1: 0.69
+test 2: 
+2) Specificity 
+3) Predictive +
+4) Predictive –
+5) Prevalence
+6) Accuracy
+ 
+Which test would you select if you wanted to make sure you didn’t have HIV?
+
+**Response:**

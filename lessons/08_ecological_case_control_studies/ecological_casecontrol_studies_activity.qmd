@@ -1,0 +1,138 @@
+---
+title: "Ecological and case-Control studies"
+author: "type your name"
+format: html
+editor: visual
+---
+
+```{r install packages}
+#| echo: false
+#| include: false
+install.packages(c('tidyverse','devtools','gghalves'))
+devtools::install_github('smin95/smplot2', force = TRUE)
+require(tidyverse)
+require(ggplot2)
+require(smplot2)
+```
+
+## RI Lyme data (Mather et al 1996)
+
+```{r mather1996 data}
+# see how we can use the data.frame() function to create a data table with the data from the Mather et al. 1996 study
+
+lyme_data_mather <- data.frame(
+  town = c("charlestown", "south kingstown", "narragansett", "westerly", "scituate", "tiverton"),
+  eri = c(0.22, 0.10, 0.13, 0.02, 0.00, 0.01),
+  tick_infection_rate = c(0.32, 0.18, 0.35, 0.11, 0.00, 0.25),
+  rep_ld_cases = c(32, 51, 32, 16, 1, 1),
+  ld_rate = c(493.98, 256.78, 213.55, 74.06, 10.21, 6.98)
+)
+
+```
+
+```{r explore data}
+#insert a line or two of code to view or summarize the lyme_data_mather data.
+summary(lyme_data_mather)
+```
+
+Which of the variables would you want to investigate to understand if the portion of infected ticks is linked with town-level Lyme disease incidence (for the year 1992)?
+
+```{r, plotting the relationship as a scatter plot}
+ggplot(lyme_data_mather) +
+  aes(x = eri, 
+      y = ld_rate) + #type in the variable names for the 2 main variables of interest!
+  geom_point(colour = "red") +
+  sm_statCorr(corr_method = 'pearson') +
+  theme_minimal()
+```
+
+How would you describe the relationship between these variables?
+
+How strong is the pearson correlation coefficient describing the linear relationship between the variables?
+
+(1 = strongest, 0 = weakest)
+
+Above 0.5 is generally considered strong;
+
+Below 0.3 is generally considered weak
+
+## South Kingstown Data
+
+```{r, sk data}
+
+# Now lets look at the relationship between eri and rate within one town at the household level
+# Homes were enrolled with a case of LD (cases) and other homes enrolled without a case of LD (controls)
+
+lyme_data_sk <- data.frame (eri_at_homes = c(0.1, 0.3, 0.25, 0.38, 0.07, 0.21, 0.02, 
+                                             0.12, 0.18, 0.13, 0.17, 0.05, 0.16, 0.08, 
+                                             0.10, 0.14, 0.25, 0.19, 0.20, 0.09,
+                                             0.1, 0.3, 0.25, 0.38, 0.07, 0.21, 
+                                             0.02, 0.12, 0.18, 0.13, 0.17, 0.05, 
+                                             0.16, 0.08, 0.10, 0.14, 0.25, 0.19, 0.20, 0.09),
+                            lyme_yn = c(0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 
+                                        0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 
+                                        1, 1, 1, 0, 1, 1),
+                            high_exposure_beh = c(0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1,
+                                                  1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0,
+                                                  0, 1, 1, 0, 1, 1, 1, 0, 0, 1)
+                            )
+
+# Note that lyme_yn and high_exposure_beh have only 1s or 0s, just 2 categories (not numerically significant) -- so we convert them to a factor variable
+lyme_data_sk <- lyme_data_sk %>%
+  dplyr::mutate(lyme_yn = as.factor(lyme_yn)) %>%
+  dplyr::mutate(high_exposure_beh = as.factor(high_exposure_beh))
+```
+
+What is the relationship between LD in the household and ERI (% infected ticks) at the household? Let's answer this by making a box plot
+
+```{r, sk data boxplots}
+ggplot(lyme_data_sk, 
+       aes(x = lyme_yn, 
+           y = eri_at_homes, 
+           color = lyme_yn)) + 
+  geom_boxplot(show.legend = FALSE) + 
+  theme_bw()
+```
+
+How much difference do you observe between households without lyme (lyme_yn == 0) and those with lyme (lyme_yn == 1)?
+
+## Compute Odds Ratios (ORs) for the South Kingstown data
+
+This compares the exposure (ERI) for those with LD versus the exposure (ERI) for those without LD.
+
+```{r, sk OR eri-ld}
+#* let's compute the relationship between lyme disease and eri at the home ####
+model1 <- glm(lyme_yn ~ eri_at_homes, #note that the outcome variable goes before the "~" and the exposure (effect variable) goes after the "~"
+             family = binomial(link = 'logit'), 
+             data = lyme_data_sk)
+exp(cbind(coef(model1), confint(model1)))
+```
+
+Interpretation:
+
+OR = 0.20 (95% CI = 0.0001; 273)
+
+For each 1 unit increase in ERI, a household has 0.20 times the odds of having a case of Lyme Disease. But there is very little confidence to this value because the 95% CI is so wide (95% CI = 0.0001; 273).
+
+```{r, OR #2}
+# Could exposure behavior be related to LD?
+model2 <- glm(lyme_yn ~ high_exposure_beh, #insert the odds ratio variables to explore (outcome ~ exposure) before the ","
+              family = binomial(link = 'logit'), 
+              data = lyme_data_sk)
+exp(cbind(coef(model2), confint(model2)))
+
+```
+
+Interpret the outcome:
+
+What is the association between exposure behavior and lyme disease after controlling for ERI (% ticks infected) around the home?
+
+```{r, OR multivariable}
+#* let's compute the relationship between lyme disease and, both exposure behavior and ERI ####
+model3 <- glm(lyme_yn ~ high_exposure_beh + eri_at_homes, # add the variable that you're controlling for after the "+ sign. 
+              family = binomial(link = 'logit'), 
+              data = lyme_data_sk)
+exp(cbind(coef(model3), confint(model3)))
+```
+
+Interpret the outcome:

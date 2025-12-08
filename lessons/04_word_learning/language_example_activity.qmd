@@ -1,0 +1,224 @@
+---
+title: "Example Activity: Early Word Learning"
+author: "Rebecca Distefano"
+format: html
+editor: visual
+---
+
+## Overview
+
+In this activity, you will be running some code that I have provided code and writing a bit of your own code to explore a public dataset that contains information about word learning in young children.
+
+The **overall objectives** of this activity are for you to...
+
+-   Visualize and interpret data to answer questions about language development
+
+-   Use a t-test to explore differences in early language development
+
+-   Pose and answer new questions based on available data
+
+Additionally, by completing this activity you should be able to...
+
+-   Adapt (and troubleshoot) R code to generate and format plots to answer specific questions
+
+***Note:** This activity will likely challenge you. You might face challenges with multiple aspects, including the coding, interpreting the resulting plots, formulating your written answers, etc. We will all work together to get through these challenges. Everyone can learn to code!*
+
+## 1. A Few Coding Fundamentals
+
+We are working in what is called a Quarto document---this is a file type that allows us to combine formatted text along with computer code to accomplish tasks.
+
+The blocks that appear below this text are called **code chunks**. They contain code written in the language R that tells the computer what to do. You can **run the code chunk** by clicking the play icon (triangle) that appears at the top right of the chunk. Go ahead, try it!
+
+```{r}
+print("Language development is cool!")
+```
+
+You should see that a box appeared below the code chunk with the outputs. In this case, we told the computer to print the string of characters that read "Language development is cool!".
+
+In R, **functions** are a tool that accept inputs (those are called "arguments") and then the function performs a series of pre-defined steps to generate an output. In R, functions look like a word or a phrase directly before a set of parentheses. In the above example we used `print()`, which is a function that prints whatever we provide as an argument.
+
+The chunk below shows another example of a function. Here we are using the `sum()` function to add together a series of values. Go ahead and run that chunk.
+
+```{r}
+# add together the numbers 1, 1, 2, and 3
+sum(1, 1, 2, 3)
+
+```
+
+The `sum()` function just provides the total of the input arguments, which is 7.
+
+You likely also noticed their are lines that start with `#`, these are **comments**. In R, anything typed on a line after a `#` isn't run as a command. It is just there to help organize your code and explain what is happening. Comments are vital when trying to interpret code or when writing your own!
+
+**TASK:** Try to write you own line of code in the chunk below that will sum together a series of numbers. Hint you can copy and paste the code from the chunk above and then edit it in the chunk below.
+
+```{r}
+# add together at least four different numbers
+
+```
+
+If you get an error, try to interpret the message it provides, ask your neighbor for help, and, if you're unsure what is wrong, call your instructor over. Everyone makes many mistakes when the code, most of them are due to small typos, mismatched parentheses, etc. and can be fixed with just a few changes.
+
+Now, let's dive just a bit deeper to see how we can begin to use code to work with data.
+
+## 2. Loading Packages & Example Data
+
+When we're coding we often need certain functions to accomplish a task. In R, there are collections of functions that other people have already built, some of these functions are part of base R---that is, they are always available---and others are incorporated into specific packages. **Packages** are kind of like a toolbox, with each type of toolbox containing a set of tools (functions) that are suited for a certain type of work.
+
+Here, we're going to install and then load four packages. The comments below tell you a bit about what each package does for us. Go ahead and run the code chunk.
+
+```{r}
+#| results: hide # this prevents a lot of messages from being printed as the code works
+
+# install required packages for this activity
+install.packages("readr").          # we need this package to import csv files
+install.packages("tidyverse")       # a collection of packages to handle and plot data 
+install.packages("naniar")          # this package will help with our data cleaning
+install.packages("ggthemes")        # a package containing better looking plot themes
+
+# load the packages so we can use the tools
+library(tidyverse)
+library(naniar)
+library(ggthemes)
+library(readr)
+```
+
+Now, we can load and inspect our data from the word learning data set. Here we will use the assignment operator (`<-`) to
+
+```{r}
+
+#import word learning dataset and assign it to an object called words_data. Here you will need to download the csv onto your computer. 
+words_data <- read_csv("/Users/rdistefano/Desktop/EnglishWGShort_Walle_data.csv")
+View(words_data)
+
+
+# print the variable names and first 6 rows so we can inspect the dataset
+head(words_data)
+
+```
+
+We get two things from that code chunk. The first is a preview of the dataset which is printed right below the code chunk. Second, you should also now see something listed under the "Data" heading called `words_data` in your environment pane, which is to the top right of your screen. That information will tell you that the dataset has 645 observations of 102 variables. The preview generated by `head()` shows us that the variables are organized as **columns** with each **row** representing a child that was observed.
+
+Since it would be difficult to scroll through hundreds of rows of data to assess relationships between variables, let's make a plot!
+
+## 3. A Bit of Data Cleaning
+
+It is rare to get a dataset that is perfectly tidy, so we will be doing some renaming of variables and recoding of missing values. You will notice in our dataset, we have some odd naming conventions, like "Age (Months)" and "Sex:" - we typically do not want those types of symbols in our variable names and it can make it more difficult to write R code. To start, let's rename some of the variables we will be working with today.
+
+```{r}
+#Rename variables for child age and sex
+words_data <- words_data %>%
+  rename(Child_Age = `Age (Months)`)
+
+words_data <- words_data %>%
+  rename(Child_Sex = `Sex:`)
+```
+
+A bit later, you will look at some different categorical variables. Using the space below, rename a new variable so that it no longer has punctuation. Hint, you can copy and paste the code from above and edit it.
+
+```{r}
+#Rename new categorical variable that you are interested in
+
+```
+
+Now that our variable names are a bit easier to work with, we need to handle some weirdness with our missing data. In some cases, there is not a value entered (which R defaults to "NA") and in other cases, the entered value is "N/A". R is going to treat these differently, even though they are the same thing. There is a handy package called naniar that has a function where we can recode all the missing values in one go!
+
+```{r}
+#Recode missing value labels
+words_data <- words_data %>%
+  replace_with_na_all(condition = ~.x == "N/A")
+```
+
+## 4. Making Your First Plot
+
+```{r}
+# make a scatter plot of total words by child age
+words_data |>                     # start with the words data; the |> passes that along
+  ggplot(aes(x = Child_Age,       # create a plot, use aesthetics to set x-axis variable
+             y = Total)) + # set the y-axis variable
+  geom_point()                      # display the data as points
+```
+
+You made a plot! While it may not be fully formatted yet, it only took a few lines of code to plot all of that data.
+
+1.  Identify the dataset you want to use and pass it along to the next step using the pipe (`|>`)
+
+2.  Say you want to make a plot using the `ggplot()` function
+
+3.  Put additional arguments inside ggplot(), specifically by defining the aesthetics (`aes()`) in which we identify which variables (columns) in the dataset will determine the x- and y-axes.
+
+4.  Match all the opening parentheses for both `ggplot()` and `aes()` then use a `+` at the end of the line to add the next visual element.
+
+5.  Typically, the next element is to define how the data will be displayed, using `geom_...()` where the `...` is replaced with a specific option. Here we `geom_point()` to use points, which makes a scatterplot!
+
+**TASK: Interpret the above plot by writing out an answer to the question "How is age related to children's vocabulary size?"** \[Be sure to write your answer in complete sentences that refer to specific patterns in you notice in the plot.\]
+
+::: callout-note
+Type your answer in this box
+:::
+
+## 5. Generating & Interpreting Plots with Categorical Variables
+
+Although age is the most common demographic factor that developmental psychologists tend to study, there are also many others to consider, including child gender and family education level, which are categorical variables. As we saw before (and renamed), the `words_data` contains a variable called "Child_Sex", which specifies whether the child is a male or female. Let's use the information in the sex variable in a new type of plot
+
+The code provided below is similar to the one above, but with a three changes. First, we do not want to plot our missing values (NA), so we need to add a filter to our code. We do this by saying that for our plot, we want to include everything that is NOT (symbolized with an !) missing (NA). Then we can proceed with our regular plotting code. Second, we are changing the type of plot from a scatter plot (geom_point) to a box plot (geom_boxplot). Third, we want to spruce up our plot a bit. We can use labs() to change the labels for our x- and y-axes. Notice that we added a `+` after `geom_boxplot()` to indicate that we were adding another visual layer. Finally we added `theme_few()` to the very end, which makes the plot appear more professional. Notice that there is no plus sign at the very end of our code chunk.
+
+```{r}
+# make a box plot comparing the vocabulary sizes of female and male children.
+words_data |> 
+  filter(!is.na(Child_Sex)) |>
+  ggplot(aes(x = Child_Sex,
+             y = Total)) + 
+  geom_boxplot() +
+  labs(x = "Child Sex",
+       y = "Total Vocabulary") +
+  theme_few()
+```
+
+**Based on that plot, are there any vocabulary differences based on child sex?** Be as specific as possible, highlighting both similarities and differences.
+
+::: callout-note
+Type your answer in this box
+:::
+
+**TASK:** Now, change your plot to examine a *different categorical variable* that might influence children's vocabulary development. Be careful to type the variable name exactly as it appears in the dataset. You may want to scroll back up to Part 2 where we used `head()` to inspect the dataset.
+
+```{r}
+# make and label box plot with the variable of your choosing
+words_data |>                    
+  ggplot(aes(x = ,                  # write the variable name after the =
+             y = Total)) +
+  geom_boxplot() +
+  labs(x = "",                      # remember to update this!
+       y = "Total Vocabulary") + 
+  theme_few()
+```
+
+**Based on that plot, does there appear to be any differences in children's vocabulary size based on the categorical variable that you chose?** Be as specific as possible, highlighting both similarities and differences.
+
+::: callout-note
+Type your answer in this box.
+:::
+
+## 6. Bringing in Some Statistics
+
+Plots can be very helpful for visualizing your data and identifying initial patterns, and we can follow these up with statistical analysis. In this example, we will use one of the most basic analyses - an independent samples t-test. This test can be used to determine whether there are differences in means between two (and only two) groups. As you will see, this code is quite simple compared to some of the plotting code we have been working with!
+
+```{r}
+#Run t-test comparing the vocabulary size of male and female children
+t.test(Total ~ Child_Sex, data = words_data)
+
+```
+
+**Based on the results of the t-test, does children's vocabulary differ between male and female children? Why or why not?**
+
+::: callout-note
+Type your answer in this box
+:::
+
+**TASK:** Again examine which variables are included in the words dataset. Then generate one remaining question that you have about language development that could be addressing using this data. .
+
+::: callout-note
+Type your answer in this box
+:::
+
+**Nice work on your first adventure with R! You have likely experienced some ups and downs in this activity and should feel proud of what you have accomplished.**

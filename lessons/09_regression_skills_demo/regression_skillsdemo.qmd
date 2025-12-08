@@ -1,0 +1,280 @@
+---
+title: "regression skills demo"
+format: html
+editor: visual
+---
+
+## Overview
+
+In this assignment, you will use chunks of code to conduct linear and logistic regression.
+
+The **objectives** of this activity are for you to…
+
+-   Recall the Births dataset
+
+    -   Understand what the variable names mean
+
+    -   Identify which variables are categorical vs continuous
+
+-   Consider which variables are the most interesting in terms of exposures, outcomes, and confounders.
+
+-   Create a boxplot that explores an important question that might explain preterm births
+
+-   Run regression analyses to explore this question and interpret findings
+
+By completing this activity you should be able to…
+
+-   Adapt (and troubleshoot) R code to generate and format plots
+-   Produce regression analyses to address specific questions
+
+***Note:** This activity will likely challenge you. You might face challenges with multiple aspects, including the coding, interpreting the resulting plots, formulating your written answers, etc. We will all work together to get through these challenges. Everyone can learn to code!*
+
+## Tips for success
+
+1.  In particular, consider checking out Hadley Wickham's R resources (https://r4ds.hadley.nz/eda) the bit on "exploratory data analysis"!
+
+------------------------------------------------------------------------
+
+## 1. Loading Packages & Data
+
+Here, we're going to install and then load four packages. The comments below tell you a bit about what each package does for us. Go ahead and run the code chunk.
+
+```{r}
+#| results: hide # this prevents a lot of messages from being printed as the code works
+#| echo: FALSE
+# all you have to do here is run the code by clicking the green play button at the top right hand side of this box
+
+# install required packages for this activity
+install.packages("tidyverse")       # a collection of packages to handle and plot data
+install.packages("ggthemes")        # a package containing better looking plot themes
+install.packages("Epi")             # a package containing the births data
+install.packages("ggpubr")          # a package to help with statistical tests
+ 
+# load the packages so we can use the tools
+library(tidyverse)
+library(ggthemes)
+library(Epi)
+library(ggpubr)
+```
+
+Now, load and clean the data.
+
+```{r}
+# all you have to do here is run the code by clicking the green play button at the top right hand side of this box
+
+data(births)
+
+births <- births %>%
+  mutate(sex = as.factor(sex),         # make sex a factor instead of numeric var.
+         lowbw = as.factor(lowbw),     # make lowbw a factor instead of numeric var.
+         preterm = as.factor(preterm), # make preterm a factor instead of numeric var.
+         hyp = as.factor(hyp))         # make hyp a factor instead of numeric var.
+```
+
+## 2. Recall and consider the variables in the "births" dataset.
+
+|            |                                                                                         |
+|-----------:|:----------------------------------------------------------------------------------------|
+|      `id`: | Identity number for mother and baby.                                                    |
+| `bweight`: | Birth weight of baby.                                                                   |
+|   `lowbw`: | Indicator for birth weight less than 2500 g. 1:low birth weight; 0:not low birth weight |
+| `gestwks`: | Gestation period.                                                                       |
+| `preterm`: | Indicator for gestation period less than 37 weeks.                                      |
+|  `matage`: | Maternal age.                                                                           |
+|     `hyp`: | Indicator for maternal hypertension: 1:hypertensive; 0:not hypertensive                 |
+|     `sex`: | Sex of baby: 1:Male, 2:Female.                                                          |
+
+Consider which variables do you think are categorical vs continuous, based on the above table. Check by running the code below.
+
+(note that *factor* variables are categorical in nature–they can have different categories–like one thing or another thing)
+
+```{r}
+str(births)
+```
+
+**QUESTION: Which variables are continuous and which are categorical?**
+
+Type your answer here
+
+**QUESTION: Which variable do you think might be most important in influencing birth weight?**
+
+Type your answer here
+
+**QUESTION: Which variable do you think might be most important in influencing preterm birth?**
+
+Type your answer here
+
+## 3. Create boxplots for birth weight and preterm birth.
+
+Remember that for boxplots:
+
+-   the x-axis variable must be categorical
+
+-   the y-axis variable must be continuous
+
+**3.1. TASK: Create a boxplot where birth weight is the y-axis variable, and hyp (hypertension) is the x-axis variable**
+
+```{r}
+# run the code provided in this box and examine the plot that it produces 
+ggplot(data = births,                                        # specifies the dataset to be used
+       aes(x = hyp,                                          # specifies the x-axis variable
+           y = bweight,                                      # specifies the y-axis variable
+           fill = hyp)) +                                    # notes the variable where the                                                                 color will fill
+  geom_boxplot() +                                           # produces the boxplot
+  geom_jitter(color = "black", size = 0.4, alpha = 0.8) +    # changes color, size, and                                                                     transparency of the points (dots)
+  stat_compare_means() +                                     # adds a p-value testing the                                                                   difference in means between groups                                                              using the Wilcoxon test
+  theme_bw() +                                               # makes the background of the                                                                  plotting space white (preferred                                                                for most plots)
+  theme(legend.position = "none") +                          # removes the legend (it isn't                                                                 needed here since we clearly label                                                              on the x-axis)
+  xlab("hypertension during pregnancy (0 = no, 1 = yes)") +  # labels the y-axis
+  ylab("birth weight (g)")                                   # labels the x-axis
+
+```
+
+**QUESTION: What's your interpretation of the box plot of birth weight related to hypertension during pregnancy?**
+
+::: callout-note
+Type your answer here
+:::
+
+**3.2. TASK: Create a boxplot where maternal age is the y-axis variable, and preterm is the x-axis variable**
+
+```{r}
+# edit the code provided in this box and examine the plot that it produces 
+ggplot(data = births,                                        # specifies the dataset to be used
+       aes(x = ,                                             # specifies the x-axis variable
+           y =  ,                                            # specifies the y-axis variable
+           fill =  )) +                                      # notes the variable where the color will fill
+  geom_boxplot() +                                           # produces the boxplot
+  geom_jitter(color = "black", size = 0.4, alpha = 0.8) +    # changes color, size, and transparency of the points (dots)
+  stat_compare_means() +                                     # adds a p-value testing the difference in means between groups using the Wilcoxon test
+  theme_bw() +                                               # makes the background of the plotting space white (preferred for most plots)
+  theme(legend.position = "none") +                          # removes the legend (it isn't needed here since we clearly label on the x-axis)
+  xlab("") +                                                 # labels the y-axis
+  ylab("")                                                   # labels the x-axis
+
+```
+
+**QUESTION: What's your interpretation of the box plot of maternal age related to preterm birth?**
+
+Type your answer here
+
+**3.3. TASK: If you want to explore more, create another boxplot where you choose two other variables of interest (perhaps those you identified above if we didn't already plot them)**
+
+```{r}
+# edit the code provided in this box and examine the plot that it produces 
+ggplot(data = births,                                        # specifies the dataset to be used
+       aes(x = ,                                             # specifies the x-axis variable
+           y =  ,                                            # specifies the y-axis variable
+           fill =  )) +                                      # notes the variable where the color will fill
+  geom_boxplot() +                                           # produces the boxplot
+  geom_jitter(color = "black", size = 0.4, alpha = 0.8) +    # changes color, size, and transparency of the points (dots)
+  stat_compare_means() +                                     # adds a p-value testing the difference in means between groups using the Wilcoxon test
+  theme_bw() +                                               # makes the background of the plotting space white (preferred for most plots)
+  theme(legend.position = "none") +                          # removes the legend (it isn't needed here since we clearly label on the x-axis)
+  xlab("") +                                                 # labels the y-axis
+  ylab("")                                                   # labels the x-axis
+
+```
+
+**QUESTION: What's your interpretation of the box plot you produced above?**
+
+Type your answer here
+
+## 4. Regression analysis
+
+The boxplots are great for detecting differences between groups, however what if we want to understand *how much difference* there is between groups?
+
+We can use regression analysis to quantify these differences and to also account for the simultaneous effects of other covariables (including potential confounders or effect modifiers)
+
+**4.1. TASK. Create a linear regression model of the effect of hypertension on birthweight (without adjusting for other covariables).**
+
+```{r}
+# run this code to produce the regression model
+mod1 <- glm(bweight ~ hyp, data = births, family = "gaussian")   # the outcome variable goes before the "~"; then we list the exposure variables; family = "gaussian" for linear regression model
+summary(mod1)$coefficients                                       # summarizes model results
+confint.default(mod1)[2, ]                                       # generates and prints the 95% confidence interval
+
+# note that here the output is given in terms of "absolute difference in birthweight comparing those with hypertension to those without"
+# thus, we can get negative values
+```
+
+**QUESTION. What is your interpretation of the effect of hypertension during pregnancy on birth weight?**
+
+Type you answer here
+
+**4.2. TASK. Create a linear regression model of the effect of maternal age on birthweight (without adjusting for other covariables).**
+
+```{r}
+# edit the code to produce the regression model
+mod1 <- glm( ~ , data = births, family = "gaussian")             # the outcome variable goes before the "~"; then we list the exposure variables; family = "gaussian" for linear regression model
+summary(mod1)$coefficients                                       # summarizes model results
+confint.default(mod1)[2, ]                                       # generates and prints the 95% confidence interval
+
+```
+
+**QUESTION. What is your interpretation of the effect of maternal age during pregnancy on birth weight?**
+
+Type you answer here
+
+**4.3. TASK. Create a linear regression model of the effect of hypertension on birthweight (controlling for maternal age).**
+
+```{r}
+# run this code to produce the regression model
+mod1 <- glm(bweight ~ hyp + matage, data = births, family = "gaussian")    # the outcome variable goes before the "~"; then we list the exposure variables separated by "+"; family = "gaussian" for linear regression model
+summary(mod1)$coefficients                                              # summarizes model results
+confint.default(mod1)[2, ]                                              # generates and prints the 95% confidence interval
+
+```
+
+**QUESTION. What is your interpretation of the effect of hypertension during pregnancy on birth weight, after controlling for maternal age?**
+
+Type you answer here
+
+**4.4. TASK. Create a linear regression model of any other variables of interest, if you like!**
+
+```{r}
+# edit the code to produce the regression model
+mod1 <- glm( ~ , data = births, family = "gaussian")             # the outcome variable goes before the "~"; then we list the exposure variables separated by "+"; family = "gaussian" for linear regression model
+summary(mod1)$coefficients                                       # summarizes model results
+confint.default(mod1)[2, ]                                       # generates and prints the 95% confidence interval
+
+```
+
+**QUESTION. What is your interpretation of the model?**
+
+Type you answer here
+
+**4.5. TASK. What if we wanted to examine the effect of hypertension on pre term birth, controlling for maternal age? This calls for a logistic regression which we use when the outcome variable is categorical with 2 possible options (not continuous). In this case pre term birth is categorical with two options (yes, preterm; or no, not preterm).**
+
+```{r}
+logistic_mod1 <- glm(preterm ~ hyp + matage, data = births, family = "binomial")  # the outcome variable goes before the "~"; then we list the exposure variables separated by "+"; family = "binomial" for logistic regression model
+exp(coefficients(logistic_mod1)[2])                                             # This is the Odds Ratio
+exp(confint.default(logistic_mod1)[2, ])                                        # This is the 95% CI on the OR
+
+```
+
+**QUESTION. What is your interpretation of the model?**
+
+Type you answer here
+
+**4.6 TASK. Make it this far? Create your own logistic regression model to explore a question of interest for childbirth outcomes.**
+
+```{r}
+logistic_mod1 <- glm( ~ , data = births, family = "binomial")  # the outcome variable goes before the "~"; then we list the exposure variables separated by "+"; family = "binomial" for logistic regression model
+exp(coefficients(logistic_mod1)[2])                                             # This is the Odds Ratio
+exp(confint.default(logistic_mod1)[2, ])                                        # This is the 95% CI on the OR
+```
+
+**QUESTION. What is your interpretation of the model?**
+
+Type you answer here
+
+## 5. Drawing conclusions.
+
+**QUESTION. What was your top insight from these analyses that you'd like to share that might help improve childbirth outcomes?**
+
+Type you answer here
+
+**QUESTION.** **What questions do you have about regression and/or coding?**
+
+Type you answer here
