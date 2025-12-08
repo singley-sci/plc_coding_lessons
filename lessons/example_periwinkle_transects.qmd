@@ -1,0 +1,147 @@
+---
+title: "Example Activity: Periwinkle Transects"
+author: "Rob Holmberg"
+format: html
+editor: visual
+---
+
+## Overview
+
+In this lesson, you will learn how to use the R programming language as an alternative to Microsoft Excel for completing the Lab 6a: Intertidal Ecology assignment from BIO.104L: Intro to Evolution and Ecology Lab at Roger Williams University. During Lab 6a, students use transects to quantify the population densities of several marine species within the lower, middle, and upper intertidal areas. This lesson uses a Quarto document, which you are reading now, to guide you through using R code to complete each step of the assignment with example data and provide context for each decision made.
+
+During this lesson, you will learn how to:
+
+-   Load a file containing example data into R and manage it as a data frame
+
+-   Perform simple calculations including sums, means, and standard deviations
+
+-   Create and format a simple bar plot
+
+-   Perform t-tests to interpret the example data
+
+Once you complete the lesson using the example data, you can then edit the code to complete the Lab 6a assignment using the real transect data you collected during Lab 6a for multiple species.
+
+***Note:** No prior experience with R is required for this lesson, and every step of the assignment can be completed using built-in base R functions (in other words, no additional packages are necessary).*
+
+## 1. Loading Example Data
+
+There are several ways to load your data into R, including manual entry. For this lesson, we will use the `read.csv()` function to load the example spreadsheet directly into an R data frame. In R, data frames are tables consisting of columns and rows, and are distinct from matrices in that they may contain multiple classes of data (e.g. character and numeric data). The example spreadsheet is formatted nearly identically to the log sheet you used to record your transect data for the Lab 6a activity, so with a little editing, you can use the code in this exercise to analyze and visualize your periwinkle counts (as well as those for other species) collected during Lab 6a.
+
+When loading data from an external source into R, it is necessary to first specify the working directory, which is the folder in which the example data file (`periwinkles.csv`) is located. Ideally, it should be the same folder containing this Quarto document. Before running the code chunk below, you should copy and paste your own working directory in the `setwd()` function below. Then replace any backslashes `\` with forward slashes `/`. When you're ready to run the code chunk, click the green arrow button in the upper right corner of the box below:
+
+```{r}
+# specify the working directory
+setwd("C:/Users/rholmberg/Desktop/R")
+
+# load the example data and assign it to an object called winkles
+winkles <- read.csv("periwinkles.csv", row.names = 1)
+```
+
+The `row.names` argument within the `read.csv()` function directs R to use the contents of the specified column in the spreadsheet (i.e. the first column) as row headings. No similar argument is required to specify column headings, as the function will default to using the contents of the first row in the spreadsheet provided it contains one fewer field than the total number of columns (there is no column heading in the first column).
+
+In order to view your new data frame, double-click the `winkles` object in the code chunk above to highlight it, then push ctrl + enter on your keyboard (or cmd + return on a Mac). You can click the arrow buttons to scroll through all of the columns in the data frame.
+
+## 2. Performing Simple Calculations
+
+Step 15 of the Lab 6a assignment asks us to calculate the total, mean, and standard deviation of the population density for each recorded taxa in each of the three intertidal areas (upper, middle, and lower) using the data recorded from 13 transects. Just like Excel has functions for calculating sums, means, and standard deviations, so does R. Since each row in `winkles` represents one of the intertidal areas, we can use the `rowSums()` and `rowMeans()` functions in the code chunk below to calculate the total and mean periwinkle population density for each and append them as new columns in `winkles`. Go ahead and run the code:
+
+```{r}
+# sum the transect counts by intertidal area and append a Total column to the data frame
+winkles$Total <- rowSums(winkles)
+
+# average the transect counts by intertidal area and append a Mean column to the data frame
+winkles$Mean <- rowMeans(winkles[1:13])
+```
+
+In R, the `$` operator is used to access, add, update, or delete elements within data structures. For example, if we wanted to isolate an existing column in `winkles` (e.g. data from an individual transect), we could do so using `winkles$T1`. If we specify a column name that doesn't already exist and assign data to it, R will append a new column with that name and data at the end of `winkles`.
+
+After appending the Total column to `winkles`, the data frame now contains more than just transect counts. If we were to use the `rowMeans()` function in the same way without changing anything, R would include the data in the Total column in its calculations of the means. Instead, we subsetted `winkles` to exclude the Total column. The range within the brackets `[]` specifies the first 13 columns of `winkles`, which contain the transect counts.
+
+Unfortunately, there is no similar function in base R to calculate standard deviation by row. Instead, we will use the `apply()` function to apply a standard deviation function to our specified data structure:
+
+```{r}
+# calculate the standard deviation of the transect counts by intertidal area and append an SD column to the data frame
+winkles$SD <- apply(X = winkles[1:13], MARGIN = 1, FUN = sd)
+```
+
+Within the `apply()` function, the `X` argument specifies the array of data to which the (mathematical) function is applied; here, we have again subsetted `winkles` to include only the transect counts. The `MARGIN` argument is used to specify whether the function is applied across rows (`1`) or columns (`2`). The `FUN` argument specifies the desired function - in this case, `sd` for standard deviation. Note: `apply()` can also be used to calculate sums, means, and any number of other pre-baked or custom mathematical functions.
+
+In practice, you are not limited to the functions included in base R, and you can download packages containing more functions created by the R community. The `rowSds()` function in the `matrixStats` package works similarly to `rowSums()` and `rowMeans()`, though it is only compatible with matrices.
+
+**TASK:** Append a new column called Max to `winkles`, and use the `max` function within `apply()` to calculate the maximum periwinkle density observed in a transect in each of the three intertidal areas. Edit the code chunk below to change the column name and function.
+
+```{r}
+# calculate the maximum periwinkle density in a transect by intertidal area and append a Max column to the data frame
+winkles$SD <- apply(X = winkles[1:13], MARGIN = 1, FUN = sd)
+```
+
+## 3. Creating Figures
+
+Like Excel, R can also be used to create figures for visualizing your data. Step 16 of the Lab 6a assignment asks us to create a column graph for each of four species showing their mean population densities in the three intertidal areas, with error bars representing standard deviations. Here, we will use R to create a simple column graph (also known as a bar plot) representing periwinkle population densities from the example data, and add elements to the plot iteratively so that it conforms with the formatting standards outlined in the Bio Lab Skills Guide. Run the code chunk below to generate a simple bar plot:
+
+```{r}
+# generate a simple bar plot visualizing the calculated means
+winklefig <- barplot(height = winkles$Mean)
+```
+
+The `height` argument within the `barplot()` function sets the height of the bars, which we specified to be the row means we calculated and appended to `winkles`. Although it is possible to generate a plot without assigning it to an object, `winklefig` is now storing the x-axis positions of each of the bars in the plot, which will come in handy later.
+
+The plot we generated is very bare bones, containing only a y-axis with tick labels and the three bars. It is missing other important elements such as an x-axis, y- and x-axis labels, labels for each bar, and error bars. In addition, the height of one of the bars exceeds that of the y-axis, which leaves no room for error bars. Some of these elements can be added using additional arguments within the `barplot()` function, while others must be added using additional functions in subsequent lines of code. Run the code chunk below to overwrite `winklefig` with a new plot containing some additional elements:
+
+```{r}
+# generate a bar plot with additional elements
+winklefig <- barplot(height = winkles$Mean, ylim = c(0,20), ylab = "Count", xlab = "Zone", names.arg = rownames(winkles))
+```
+
+Here, the `ylim` argument sets the minimum and maximum limits for the y-axis, which is provided as a vector (the `c()` function combines values separated by commas into a vector). The `ylab` and `xlab` arguments are used to set y- and x-axis labels, respectively. Finally, the `names.arg` argument is used to set labels for each of the bars, for which we used the `rownames()` function to borrow matching row headings from `winkles`.
+
+The new plot is a big improvement over the first plot, but it's still missing an x-axis and error bars. Adding these requires additional lines of code. Run the code chunk below to generate the final plot containing both:
+
+```{r}
+# generate the finished bar plot
+winklefig <- barplot(height = winkles$Mean, ylim = c(0,20), ylab = "Count", xlab = "Zone", names.arg = rownames(winkles))
+# add an x-axis
+axis(side = 1, at = c(0,4), lwd.tick = 0, labels = FALSE)
+# draw arrows representing error bars
+arrows(x0 = winklefig, y0 = winkles$Mean, x1 = winklefig, y1 = winkles$Mean + winkles$SD, angle = 90, code = 2, length = 0.1)
+```
+
+Once a plot has been generated, the `axis()` function can be used to add a new axis to it. The `side` argument specifies which side of the plot the axis is drawn on: the bottom (`1`), left (`2`), top (`3`), or right (`4`). The `at` argument sets the minimum and maximum limits of the axis, which are provided as a vector. Although our x-axis is categorical, not numerical, R still treats it as a numerical axis, and viewing the x-axis positions of the bars stored in `winklefig` will give you an idea of where to set the maximum limit. The `at` argument also draws tick marks and tick labels on the axis by default, so setting the `lwd.tick` argument to `0` and the `labels` argument to `FALSE` prevents them from being drawn.
+
+Adding error bars is trickier, since there is no function in base R for adding error bars to a plot. Instead, we can use the `arrows()` function to draw lines on the plot which begin and end at specified coordinates. The `x0` and `y0` arguments set the x and y coordinates where the lines begin; in this case, `x0` is set to `winklefig`, which stores the x-axis positions of the centers of the bars, and `y0` is set to `winkles$Mean`, which represents the heights of the bars. In other words, the lines begin at the top center of each bar. The `x1` and `y1` arguments set the x and y coordinates where the lines end; in this case, `x1` is also set to `winklefig`, and `y1` is set to `winkles$Mean + winkles$SD`, which makes the length of each line correspond to the standard deviation for each bar. Finally, the `angle`, `code`, and `length` arguments determine how the arrowheads are drawn: `90` degrees (perpendicular to the lines), at the top end of each line (`2`), and with a length of `0.1`.
+
+**TASK:** Plots can be enhanced with any number of graphical parameters. In a bar plot, the color of the bars can be specified using the `col` argument, and most common colors can be specified by typing the name of the color in lowercase between quotes `""`. Edit the code chunk below to generate a new plot and change the bars to a color of your choosing.
+
+```{r}
+# generate the finished bar plot with a new color
+winklefig <- barplot(height = winkles$Mean, ylim = c(0,20), ylab = "Count", xlab = "Zone", names.arg = rownames(winkles))
+# add an x-axis
+axis(side = 1, at = c(0,4), lwd.tick = 0, labels = FALSE)
+# draw arrows representing error bars
+arrows(x0 = winklefig, y0 = winkles$Mean, x1 = winklefig, y1 = winkles$Mean + winkles$SD, angle = 90, code = 2, length = 0.1)
+```
+
+## 4. Statistical Analysis
+
+Step 17 of the Lab 6a assignment asks us to perform a t-test for each of four species to determine whether location within the intertidal zone has an effect on population density. Although t-tests can be performed using Excel, R is vastly superior for statistical analysis, as it offers a substantially greater number of statistical tests as well as options for each test. There is nothing in statistics that R can't do, which is why it is so widely used by scientists. Here, we will use R to perform a t-test comparing periwinkle population densities between the lower and middle intertidal areas from the example data. Run the code:
+
+```{r}
+# perform a t-test comparing periwinkle population density between the lower and middle intertidal
+low_vs_mid <- t.test(x = winkles[3,1:13], y = winkles[2,1:13], var.equal = FALSE)
+```
+
+The `t.test()` function will accept formula input (i.e. dependent variable \~ groups); however, since the Lab 6a log sheet and example data are in wide format, we will instead enter the data for each group as individual vectors. The `x` argument specifies the data for the first group, and the `y` argument specifies the data for the second group (the order in which the groups are entered doesn't matter). For each group, we subsetted `winkles` to isolate the transect counts for either the lower or middle intertidal: the first number in the brackets `[]` indicates the desired row, and the range after the comma indicates the desired range of columns. The `var.equal` argument specifies whether we want to treat the variances as equal: since the Lab 6a activity tells us to use a two-sample t-test assuming unequal variances, we set this to `FALSE`.
+
+In order to view the results of the t-test, double-click the `low_vs_mid` object in the code chunk above to highlight it, then push ctrl + enter on your keyboard (or cmd + return on a Mac). As you can see, p \> 0.05, which suggests that there is no significant difference in periwinkle population density between the lower and middle intertidal. If we look back at the bar plot we generated, this is hardly surprising, as the lower and middle bars are close in height. However, there may well be a difference in population density between the lower and upper intertidal.
+
+**TASK:** Perform a second t-test, this time testing for a difference in periwinkle population density between the lower and upper intertidal. Edit the code for the first t-test in the chunk below to rename the object and change the `winkles` subsets to isolate the correct data. Feel free to open the `winkles` data frame as before to help you determine which rows to subset.
+
+```{r}
+# perform a t-test comparing periwinkle population density between the lower and upper intertidal
+low_vs_mid <- t.test(x = winkles[3,1:13], y = winkles[2,1:13], var.equal = FALSE)
+```
+
+Once you run your t-test, view the output and interpret the result in a complete sentence in the box below. Be sure to include the p-value in your interpretation.
+
+::: callout-note
+:::
