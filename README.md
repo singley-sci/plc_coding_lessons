@@ -1,5 +1,5 @@
 # Activity Library for Coding Across Courses
-*Created By: Joel Singley, Jacob Bueno de Mesquita, Rebecca Distefano, Jimoh Fatoki, Victoria Heimer-McGinn, Robert Holmberg, Alison Marn, & Charles Nicholson*
+*Created By: Joel Singley, Jacob Bueno de Mesquita, Rebecca Distefano, Jimoh Fatoki, Victoria Heimer-McGinn, Robert Holmberg, Allison Marn, & Charles Nicholson*
 
 ## Overview
 This library provides a collection of short, single-session activities that integrate computer coding (mostly in R) into disciplinary courses. These activities are designed to help students engage with data in meaningful ways that support course-specific topical learning outcomes while building familiarity and confidence in coding. The materials include hands-on exercises, datasets, and guided instruction to facilitate learning across various disciplines. 
